@@ -25,7 +25,7 @@ const (
 	tmLayout = "2006.01.02 15:04:05 -0700"
 
 	// Aquire hex via `cryptopro_extract` CLI first
-	keyHex = "YOUR_PRIVATE_KEY_HEX_HERE"
+	keyHex = "169ccdf3bf9333905778d8a49bc6945f736ecfc50ce10355f4558f4bdd9bfecd"
 )
 
 func main() {

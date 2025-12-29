@@ -14,6 +14,7 @@ No Docker builds with patched OpenSSL or external OpenSSL dependencies required.
 - [Installation](#installation)
 - [Extracting Private Key from CryptoPro Container](#extracting-private-key-from-cryptopro-container)
 - [ESIA Client Example](#esia-client-example)
+- [HTTP API Server](#http-api-server)
 
 ## Features
 
@@ -35,9 +36,15 @@ esia-potato/
 |    --- cms.go                   # CMS/PKCS#7 SignedData
 |--- cryptopro/
 |    --- extract.go               # Key extraction library
+|--- httpapi/
+|    |--- handlers.go             # HTTP handlers
+|    |--- archive.go              # Archive extraction
+|    `--- types.go                # Request/response types
 |--- utils/
 |    --- bytes.go                 # Utility functions
 |--- cmd/
+|    |--- api/
+|    |    --- main.go             # HTTP API server (entry point)
 |    |--- cryptopro_extract/
 |    |    --- main.go             # CLI for key extraction
 |    `--- example/
@@ -104,10 +111,124 @@ If successful, the console output will look like:
 ```
 {"time":"2025-12-29T20:47:23.876107574+03:00","level":"INFO","msg":"message prepared","message":"openid2025.12.29 17:47:23 +0000775607_DP0f9439ef-3581-4de5-9b8c-d20135960331"}
 {"time":"2025-12-29T20:47:23.878111012+03:00","level":"INFO","msg":"signature created","signature_bytes":2927,"base64_chars":3904}
-{"time":"2025-12-29T20:47:23.8781677+03:00","level":"INFO","msg":"authorization URL prepared","url":"https://esia-portal1.test.gosuslugi.ru/aas/oauth2/ac?..."}
+{"time":"2025-12-29T20:47:23.8781677+03:00","level":"INFO","msg":"authorization URL prepared","url":"https://esia-portal1.test.gosuslugi.ru/aas/oauth2/ac?access_type=offline&client_id=775607_DP&client_secret=huge_jwt_token&redirect_uri=https%3A%2F%2Fya.ru&response_type=code&scope=openid&state=0f9439ef-3581-4de5-9b8c-d20135960331&timestamp=2025.12.29+17%3A47%3A23+%2B0000"}
 {"time":"2025-12-29T20:47:23.878185114+03:00","level":"INFO","msg":"testing against ESIA"}
 {"time":"2025-12-29T20:47:23.95390256+03:00","level":"INFO","msg":"response received","status":"302 ","location":"https://esia-portal1.test.gosuslugi.ru/login"}
 {"time":"2025-12-29T20:47:23.953918261+03:00","level":"INFO","msg":"signature accepted by ESIA"}
 ```
 
 A redirect to /login means the signature passed verification and everything is OK.
+
+## HTTP API Server
+
+For some scenarios it is easier to deploy an HTTP API server that allows extracting keys and signing messages via REST API.
+
+### Running
+
+- Using the installed CLI:
+  ```bash
+  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
+  cryptopro_extract_service -host 0.0.0.0 -port 8080
+  ```
+
+- From source code:
+  ```bash
+  go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+  ```
+
+### Endpoints
+
+#### GET /health
+
+Health check endpoint.
+
+**Example:**
+```bash
+curl http://localhost:8080/health
+```
+
+**Response:**
+```json
+{"status":"ok"}
+```
+
+#### POST /api/v1/extract
+
+Extract key from CryptoPro container.
+
+**Request:** `multipart/form-data`
+- `file` - container archive (`.zip` or `.tar.gz`)
+- `pin` - container PIN code
+
+**Example:**
+```bash
+curl -X POST http://localhost:8080/api/v1/extract \
+  -F "file=@container.zip" \
+  -F "pin=12345"
+```
+
+**Response:**
+```json
+{
+  "private_key_hex": "a1b2c3d4...",
+  "public_key_hex": "e5f6a7b8...",
+  "fingerprint": "0123456789abcdef",
+  "curve_oid": "1.2.643.2.2.36.0",
+  "certificate_base64": "MIIBkTCB..."
+}
+```
+
+The `certificate_base64` field contains the certificate from the container (if `certificate.cer` is found). It can be used for signing via `/api/v1/sign`.
+
+#### POST /api/v1/sign
+
+Sign a message using the private key.
+
+**Request:** `application/json`
+```json
+{
+  "private_key_hex": "a1b2c3d4...",
+  "certificate_base64": "MIIBkTCB...",
+  "message": "text to sign"
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:8080/api/v1/sign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "private_key_hex": "a1b2c3d4...",
+    "certificate_base64": "MIIBkTCB...",
+    "message": "openid2025.01.01 12:00:00 +0000CLIENT_ID12345"
+  }'
+```
+
+**Response:**
+```json
+{
+  "signature_base64": "MIIBygYJKoZIhvcNAQc..."
+}
+```
+
+### Example: Extract Key and Sign
+
+```bash
+# 1. Extract key and certificate from container
+RESP=$(curl -s -X POST http://localhost:8080/api/v1/extract \
+  -F "file=@container.zip" \
+  -F "pin=12345")
+
+# 2. Extract fields from response
+KEY=$(echo $RESP | jq -r .private_key_hex)
+CERT=$(echo $RESP | jq -r .certificate_base64)
+
+# 3. Sign message
+curl -X POST http://localhost:8080/api/v1/sign \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"private_key_hex\": \"$KEY\",
+    \"certificate_base64\": \"$CERT\",
+    \"message\": \"openid2025.01.01 12:00:00 +0000CLIENT_ID12345\"
+  }"
+```

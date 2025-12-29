@@ -14,6 +14,7 @@
 - [Установка](#установка)
 - [Извлечение приватного ключа из контейнера КриптоПро](#извлечение-приватного-ключа-из-контейнера-криптопро)
 - [Пример клиента ЕСИА](#пример-клиента-есиа)
+- [HTTP API сервер](#http-api-сервер)
 
 ## Что умеет
 
@@ -35,9 +36,15 @@ esia-potato/
 |    --- cms.go                   # CMS/PKCS#7 SignedData
 |--- cryptopro/
 |    --- extract.go               # Библиотека извлечения ключей
+|--- httpapi/
+|    |--- handlers.go             # HTTP хендлеры
+|    |--- archive.go              # Распаковка архивов
+|    `--- types.go                # Типы запросов/ответов
 |--- utils/
 |    --- bytes.go                 # Вспомогательные функции
 |--- cmd/
+|    |--- api/
+|    |    --- main.go             # HTTP API сервер (точка входа)
 |    |--- cryptopro_extract/
 |    |    --- main.go             # CLI для извлечения ключей
 |    `--- example/
@@ -111,3 +118,117 @@ secondary key found but not extracted
 ```
 
 Редирект на /login означает, что подпись прошла проверку и всё ок.
+
+## HTTP API сервер
+
+Для удобства интеграции в ряде случаев есть HTTP API сервер, который позволяет извлекать ключи и подписывать сообщения через REST API.
+
+### Запуск
+
+- С помощью установленного CLI:
+  ```bash
+  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
+  cryptopro_extract_service -host 0.0.0.0 -port 8080
+  ```
+
+- Из исходников:
+  ```bash
+  go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+  ```
+
+### Эндпоинты
+
+#### GET /health
+
+Проверка состояния сервера.
+
+**Пример:**
+```bash
+curl http://localhost:8080/health
+```
+
+**Ответ:**
+```json
+{"status":"ok"}
+```
+
+#### POST /api/v1/extract
+
+Извлечение ключа из контейнера КриптоПро.
+
+**Запрос:** `multipart/form-data`
+- `file` - архив контейнера (`.zip` или `.tar.gz`)
+- `pin` - пин-код контейнера
+
+**Пример:**
+```bash
+curl -X POST http://localhost:8080/api/v1/extract \
+  -F "file=@container.zip" \
+  -F "pin=12345"
+```
+
+**Ответ:**
+```json
+{
+  "private_key_hex": "a1b2c3d4...",
+  "public_key_hex": "e5f6a7b8...",
+  "fingerprint": "0123456789abcdef",
+  "curve_oid": "1.2.643.2.2.36.0",
+  "certificate_base64": "MIIBkTCB..."
+}
+```
+
+Поле `certificate_base64` содержит сертификат из контейнера (если найден `certificate.cer`). Его можно использовать для подписи через `/api/v1/sign`.
+
+#### POST /api/v1/sign
+
+Подпись сообщения с использованием приватного ключа.
+
+**Запрос:** `application/json`
+```json
+{
+  "private_key_hex": "a1b2c3d4...",
+  "certificate_base64": "MIIBkTCB...",
+  "message": "текст для подписи"
+}
+```
+
+**Пример:**
+```bash
+curl -X POST http://localhost:8080/api/v1/sign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "private_key_hex": "a1b2c3d4...",
+    "certificate_base64": "MIIBkTCB...",
+    "message": "openid2025.01.01 12:00:00 +0000CLIENT_ID12345"
+  }'
+```
+
+**Ответ:**
+```json
+{
+  "signature_base64": "MIIBygYJKoZIhvcNAQc..."
+}
+```
+
+### Пример: извлечение ключа и подпись
+
+```bash
+# 1. Извлекаем ключ и сертификат из контейнера
+RESP=$(curl -s -X POST http://localhost:8080/api/v1/extract \
+  -F "file=@container.zip" \
+  -F "pin=12345")
+
+# 2. Извлекаем нужные поля из ответа
+KEY=$(echo $RESP | jq -r .private_key_hex)
+CERT=$(echo $RESP | jq -r .certificate_base64)
+
+# 3. Подписываем сообщение
+curl -X POST http://localhost:8080/api/v1/sign \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"private_key_hex\": \"$KEY\",
+    \"certificate_base64\": \"$CERT\",
+    \"message\": \"openid2025.01.01 12:00:00 +0000CLIENT_ID12345\"
+  }"
+```
