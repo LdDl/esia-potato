@@ -13,23 +13,31 @@
 
 ## Что умеет
 
-w.i.p.
+- Подпись ГОСТ Р 34.10-2012 (256 бит)
+- Хеш ГОСТ Р 34.11-2012 (Стрибог-256)
+- Формирование CMS/PKCS#7 SignedData
+- Работа с ключами из контейнера КриптоПро
 
 ## Вводные
 
-w.i.p.
+- Для сборки из исходников нужен Go 1.21+
+- Контейнер КриптоПро с приватным ключом и сертификатом. В данном случае "контейнер" - это директория (или архив изначально), которая создаётся при экспорте ключа из КриптоПро CSP.
 
 ## Структура проекта
 
 ```
 esia-potato/
 |--- cms/
-|    --- cms.go                  
+|    --- cms.go                   # CMS/PKCS#7 SignedData
 |--- cryptopro/
 |    --- extract.go               # Библиотека извлечения ключей
+|--- utils/
+|    --- bytes.go                 # Вспомогательные функции
 |--- cmd/
-|    --- cryptopro_extract/
-|        --- main.go              # CLI для извлечения ключей
+|    |--- cryptopro_extract/
+|    |    --- main.go             # CLI для извлечения ключей
+|    `--- example/
+|         --- main.go             # Пример клиента ЕСИА
 `--- test_container/              # Тестовые ключи. В gitignore, так как ваши будут отличаться
 ```
 
@@ -44,7 +52,7 @@ esia-potato/
 
 - Если хочешь собрать из исходников:
   ```bash
-  git clone git@github.com:LdDl/esia-potato.git ---depth 1
+  git clone git@github.com:LdDl/esia-potato.git --depth 1
   cd esia-potato
   go run ./cmd/cryptopro_extract -h
   ```
@@ -63,7 +71,7 @@ esia-potato/
   go run ./cmd/cryptopro_extract -p ПИН_КОД_ПАРОЛЬ ./container.000
   ```
 
-Результат, если всё
+Если всё ОК, то в консоли будет что-то типа:
 
 ```
 {"time":"2025-12-29T20:36:00.591340886+03:00","level":"INFO","msg":"container opened","path":"./test_container","curve_oid":"1.2.643.2.2.36.0"}
@@ -74,7 +82,7 @@ esia-potato/
 
 Если отображается сообщение с предупреждением:
 ```
-Note: secondary key (masks2.key/primary2.key) found but not extracted
+secondary key found but not extracted
 ````
 , то это нормально — вторичный ключ не нужен для подписи, т.к. для oAuth в ЕСИА используется только первичный ключ.
 
@@ -87,7 +95,8 @@ Note: secondary key (masks2.key/primary2.key) found but not extracted
   ```bash
   go run ./cmd/example/main.go
   ```
-- Если всё ОК, то в консоли будет что-то типа:
+
+Если всё ОК, то в консоли будет что-то типа:
 ```
 {"time":"2025-12-29T20:47:23.876107574+03:00","level":"INFO","msg":"message prepared","message":"openid2025.12.29 17:47:23 +0000775607_DP0f9439ef-3581-4de5-9b8c-d20135960331"}
 {"time":"2025-12-29T20:47:23.878111012+03:00","level":"INFO","msg":"signature created","signature_bytes":2927,"base64_chars":3904}
