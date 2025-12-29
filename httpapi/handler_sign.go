@@ -12,6 +12,18 @@ import (
 	"github.com/ddulesov/gogost/gost3410"
 )
 
+// HandleSign Sign message with GOST signature
+// @Summary Sign message
+// @Description Signs a message using GOST R 34.10-2012 and returns CMS/PKCS#7 SignedData
+// @Tags Signing
+// @Accept json
+// @Produce json
+// @Param request body httpapi.SignRequest true "Sign request"
+// @Success 200 {object} httpapi.SignResponse
+// @Failure 400 {object} httpapi.ErrorResponse
+// @Failure 405 {object} httpapi.ErrorResponse
+// @Failure 500 {object} httpapi.ErrorResponse
+// @Router /api/v1/sign [POST]
 func HandleSign(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

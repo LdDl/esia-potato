@@ -14,6 +14,19 @@ import (
 
 const maxUploadSize = 10 << 20 // 10 MB
 
+// HandleExtract Extract key from CryptoPro container
+// @Summary Extract key from CryptoPro container
+// @Description Extracts private key, public key and certificate from uploaded CryptoPro container archive
+// @Tags Key Extraction
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "Container archive (.zip or .tar.gz)"
+// @Param pin formData string false "Container PIN code"
+// @Success 200 {object} httpapi.ExtractResponse
+// @Failure 400 {object} httpapi.ErrorResponse
+// @Failure 405 {object} httpapi.ErrorResponse
+// @Failure 500 {object} httpapi.ErrorResponse
+// @Router /api/v1/extract [POST]
 func HandleExtract(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeError(w, http.StatusMethodNotAllowed, "method not allowed")

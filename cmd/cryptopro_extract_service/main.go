@@ -24,6 +24,8 @@ func main() {
 	mux.HandleFunc("/api/v1/extract", httpapi.HandleExtract)
 	mux.HandleFunc("/api/v1/sign", httpapi.HandleSign)
 	mux.HandleFunc("/health", httpapi.HandleHealth)
+	mux.HandleFunc("/docs", httpapi.HandleDocsUI)
+	mux.HandleFunc("/docs/swagger.json", httpapi.HandleDocsJSON)
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	slog.Info("starting server", "host", host, "port", port)

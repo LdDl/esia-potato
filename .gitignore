@@ -1,3 +1,17 @@
 test_container/
 test_container.zip
 test_container.tar.gz
+
+# Build artifacts
+*.tar.gz
+*.zip
+!*.go
+
+# Binaries
+cryptopro_extract
+cryptopro_extract.exe
+cryptopro_extract_service
+cryptopro_extract_service.exe
+
+# Swagger generated docs (keep index.html)
+httpapi/docs/swagger.json

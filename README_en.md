@@ -136,6 +136,16 @@ For some scenarios it is easier to deploy an HTTP API server that allows extract
   go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
   ```
 
+### API Documentation
+
+Interactive API documentation is available at:
+- **OpenAPI JSON:** http://localhost:8080/docs/swagger.json
+- **UI (RapiDoc):** http://localhost:8080/docs
+
+  <img src="rapidoc1.png" alt="API Example" width="720px"/>
+
+- [RapiDoc](https://rapidocweb.com/) - UI for API documentation
+
 ### Endpoints
 
 #### GET /health

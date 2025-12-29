@@ -136,6 +136,16 @@ secondary key found but not extracted
   go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
   ```
 
+### API документация
+
+Интерактивная документация API доступна по адресу:
+- **OpenAPI JSON:** http://localhost:8080/docs/swagger.json
+- **UI (RapiDoc):** http://localhost:8080/docs
+
+  <img src="rapidoc1.png" alt="API Example" width="720px"/>
+
+- [RapiDoc](https://rapidocweb.com/) - UI для документации API
+
 ### Эндпоинты
 
 #### GET /health
