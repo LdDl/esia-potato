@@ -82,4 +82,19 @@ Note: secondary key (masks2.key/primary2.key) found but not extracted
 
 ## Пример клиента ЕСИА
 
-w.i.p.
+- Возьмите приватный ключ из вывода предыдущего шага и вставьте его в `cmd/example/main.go` в `keyHex`.
+- Запустите пример:
+  ```bash
+  go run ./cmd/example/main.go
+  ```
+- Если всё ОК, то в консоли будет что-то типа:
+```
+{"time":"2025-12-29T20:47:23.876107574+03:00","level":"INFO","msg":"message prepared","message":"openid2025.12.29 17:47:23 +0000775607_DP0f9439ef-3581-4de5-9b8c-d20135960331"}
+{"time":"2025-12-29T20:47:23.878111012+03:00","level":"INFO","msg":"signature created","signature_bytes":2927,"base64_chars":3904}
+{"time":"2025-12-29T20:47:23.8781677+03:00","level":"INFO","msg":"authorization URL prepared","url":"https://esia-portal1.test.gosuslugi.ru/aas/oauth2/ac?access_type=offline&client_id=775607_DP&client_secret=гигантский_jwt_токен&redirect_uri=https%3A%2F%2Fya.ru&response_type=code&scope=openid&state=0f9439ef-3581-4de5-9b8c-d20135960331&timestamp=2025.12.29+17%3A47%3A23+%2B0000"}
+{"time":"2025-12-29T20:47:23.878185114+03:00","level":"INFO","msg":"testing against ESIA"}
+{"time":"2025-12-29T20:47:23.95390256+03:00","level":"INFO","msg":"response received","status":"302 ","location":"https://esia-portal1.test.gosuslugi.ru/login"}
+{"time":"2025-12-29T20:47:23.953918261+03:00","level":"INFO","msg":"signature accepted by ESIA"}
+```
+
+Редирект на /login означает, что подпись прошла проверку и всё ок.

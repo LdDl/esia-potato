@@ -269,16 +269,17 @@ func (s *Signer) createSignedAttributes(digest []byte) (asn1.RawValue, []byte, e
 	// The attrsBytes starts with SEQUENCE tag, we need to replace with SET
 	attrsForSigning := make([]byte, len(attrsBytes))
 	copy(attrsForSigning, attrsBytes)
-	attrsForSigning[0] = 0x31 // SET tag
+	// SET tag
+	attrsForSigning[0] = 0x31
 
 	// For embedding, use implicit tag [0]
 	signedAttrs := asn1.RawValue{
 		Class:      asn1.ClassContextSpecific,
 		Tag:        0,
 		IsCompound: true,
-		Bytes:      attrsBytes[2:], // skip SEQUENCE tag and length
+		// skip SEQUENCE tag and length
+		Bytes: attrsBytes[2:],
 	}
 
 	return signedAttrs, attrsForSigning, nil
 }
-
