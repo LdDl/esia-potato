@@ -43,12 +43,14 @@ esia-potato/
 |--- utils/
 |    --- bytes.go                 # Utility functions
 |--- cmd/
-|    |--- api/
+|    |--- cryptopro_extract_service/
 |    |    --- main.go             # HTTP API server (entry point)
 |    |--- cryptopro_extract/
 |    |    --- main.go             # CLI for key extraction
-|    `--- example/
-|         --- main.go             # ESIA client example
+|    |--- example/
+|    |    --- main.go             # ESIA client example (library)
+|    `--- example_api/
+|         --- main.go             # ESIA client example (HTTP API)
 `--- test_container/              # Test keys (in .gitignore)
 ```
 
@@ -118,6 +120,25 @@ If successful, the console output will look like:
 ```
 
 A redirect to /login means the signature passed verification and everything is OK.
+
+## ESIA Client Example (via HTTP API)
+
+If you cannot use this project as a library, you can use the HTTP API version.
+
+1. Start the HTTP API server:
+   ```bash
+   go run ./cmd/cryptopro_extract_service/main.go
+   ```
+
+2. In another terminal, run the example:
+   ```bash
+   go run ./cmd/example_api/main.go
+   ```
+
+This example:
+- Sends the container to `/api/v1/extract` to extract the key
+- Sends a message to `/api/v1/sign` for signing
+- Uses the signature for ESIA authorization
 
 ## HTTP API Server
 

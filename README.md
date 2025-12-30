@@ -43,12 +43,14 @@ esia-potato/
 |--- utils/
 |    --- bytes.go                 # Вспомогательные функции
 |--- cmd/
-|    |--- api/
+|    |--- cryptopro_extract_service/
 |    |    --- main.go             # HTTP API сервер (точка входа)
 |    |--- cryptopro_extract/
 |    |    --- main.go             # CLI для извлечения ключей
-|    `--- example/
-|         --- main.go             # Пример клиента ЕСИА
+|    |--- example/
+|    |    --- main.go             # Пример клиента ЕСИА (библиотека)
+|    `--- example_api/
+|         --- main.go             # Пример клиента ЕСИА (HTTP API)
 `--- test_container/              # Тестовые ключи. В gitignore, так как ваши будут отличаться
 ```
 
@@ -118,6 +120,25 @@ secondary key found but not extracted
 ```
 
 Редирект на /login означает, что подпись прошла проверку и всё ок.
+
+## Пример клиента ЕСИА (через HTTP API)
+
+Если нет возможности использовать этот проект как библиотеку, то можно воспользоватья HTTP API версией.
+
+1. Запустите HTTP API сервер:
+   ```bash
+   go run ./cmd/cryptopro_extract_service/main.go
+   ```
+
+2. В другом терминале запустите пример:
+   ```bash
+   go run ./cmd/example_api/main.go
+   ```
+
+Этот пример:
+- Отправляет контейнер на `/api/v1/extract` для извлечения ключа
+- Отправляет сообщение на `/api/v1/sign` для подписи
+- Использует полученную подпись для авторизации в ЕСИА
 
 ## HTTP API сервер
 
