@@ -12,6 +12,8 @@
 - [Вводные](#вводные)
 - [Структура проекта](#структура-проекта)
 - [Установка](#установка)
+  - [Go](#go)
+  - [Docker](#docker)
 - [Извлечение приватного ключа из контейнера КриптоПро](#извлечение-приватного-ключа-из-контейнера-криптопро)
 - [Пример клиента ЕСИА](#пример-клиента-есиа)
 - [HTTP API сервер](#http-api-сервер)
@@ -56,7 +58,8 @@ esia-potato/
 
 ## Установка
 
-* Для утилиты извлечения ключей из контейнера КриптоПро
+### Go
+
 - Если нужен просто CLI:
   ```bash
   go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
@@ -69,6 +72,13 @@ esia-potato/
   cd esia-potato
   go run ./cmd/cryptopro_extract -h
   ```
+
+### Docker
+
+```bash
+docker pull dimahkiin/cryptopro-extract:latest
+docker run --rm -v $(pwd)/container:/data dimahkiin/cryptopro-extract -p ПИН_КОД /data
+```
 
 ## Извлечение приватного ключа из контейнера КриптоПро
 
@@ -155,6 +165,12 @@ secondary key found but not extracted
 - Из исходников:
   ```bash
   go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+  ```
+
+- Docker:
+  ```bash
+  docker pull dimahkiin/cryptopro-extract-service:latest
+  docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
   ```
 
 ### API документация

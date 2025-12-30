@@ -12,6 +12,8 @@ No Docker builds with patched OpenSSL or external OpenSSL dependencies required.
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
+  - [Go](#go)
+  - [Docker](#docker)
 - [Extracting Private Key from CryptoPro Container](#extracting-private-key-from-cryptopro-container)
 - [ESIA Client Example](#esia-client-example)
 - [HTTP API Server](#http-api-server)
@@ -56,7 +58,8 @@ esia-potato/
 
 ## Installation
 
-* For the CryptoPro container key extraction utility
+### Go
+
 - If you just need the CLI:
   ```bash
   go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
@@ -69,6 +72,13 @@ esia-potato/
   cd esia-potato
   go run ./cmd/cryptopro_extract -h
   ```
+
+### Docker
+
+```bash
+docker pull dimahkiin/cryptopro-extract:latest
+docker run --rm -v $(pwd)/container:/data dimahkiin/cryptopro-extract -p YOUR_PIN /data
+```
 
 ## Extracting Private Key from CryptoPro Container
 
@@ -155,6 +165,12 @@ For some scenarios it is easier to deploy an HTTP API server that allows extract
 - From source code:
   ```bash
   go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+  ```
+
+- Docker:
+  ```bash
+  docker pull dimahkiin/cryptopro-extract-service:latest
+  docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
   ```
 
 ### API Documentation
