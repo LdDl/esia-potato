@@ -41,4 +41,15 @@ echo "Building Docker images..."
 docker build -f Dockerfile.cli -t cryptopro-extract:latest .
 docker build -f Dockerfile.service -t cryptopro-extract-service:latest .
 
+# push to docker registry
+# VERSION=0.0.1
+# docker tag cryptopro-extract:latest dimhakiin/cryptopro-extract:${VERSION}
+# docker tag cryptopro-extract:latest dimhakiin/cryptopro-extract:latest
+# docker tag cryptopro-extract-service:latest dimhakiin/cryptopro-extract-service:${VERSION}
+# docker tag cryptopro-extract-service:latest dimhakiin/cryptopro-extract-service:latest
+# docker push dimhakiin/cryptopro-extract:${VERSION}
+# docker push dimhakiin/cryptopro-extract:latest
+# docker push dimhakiin/cryptopro-extract-service:${VERSION}
+# docker push dimhakiin/cryptopro-extract-service:latest
+
 echo "Done!"
