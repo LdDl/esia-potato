@@ -11,12 +11,17 @@ No Docker builds with patched OpenSSL or external OpenSSL dependencies required.
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
-- [Installation](#installation)
+- [CLI Installation](#cli-installation)
   - [Go](#go)
+  - [Build from Source](#build-from-source)
   - [Docker](#docker)
 - [Extracting Private Key from CryptoPro Container](#extracting-private-key-from-cryptopro-container)
 - [ESIA Client Example](#esia-client-example)
-- [HTTP API Server](#http-api-server)
+- [HTTP API Server Installation](#http-api-server-installation)
+  - [Go](#go-1)
+  - [Build from Source](#build-from-source-1)
+  - [Docker](#docker-1)
+- [ESIA Client Example (via HTTP API)](#esia-client-example-via-http-api)
 
 ## Features
 
@@ -56,22 +61,22 @@ esia-potato/
 `--- test_container/              # Test keys (in .gitignore)
 ```
 
-## Installation
+## CLI Installation
 
 ### Go
 
-- If you just need the CLI:
-  ```bash
-  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
-  cryptopro_extract -h
-  ```
+```bash
+go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
+cryptopro_extract -h
+```
 
-- If you want to build from source:
-  ```bash
-  git clone git@github.com:LdDl/esia-potato.git --depth 1
-  cd esia-potato
-  go run ./cmd/cryptopro_extract -h
-  ```
+### Build from Source
+
+```bash
+git clone git@github.com:LdDl/esia-potato.git --depth 1
+cd esia-potato
+go run ./cmd/cryptopro_extract -h
+```
 
 ### Docker
 
@@ -131,47 +136,29 @@ If successful, the console output will look like:
 
 A redirect to /login means the signature passed verification and everything is OK.
 
-## ESIA Client Example (via HTTP API)
-
-If you cannot use this project as a library, you can use the HTTP API version.
-
-1. Start the HTTP API server:
-   ```bash
-   go run ./cmd/cryptopro_extract_service/main.go
-   ```
-
-2. In another terminal, run the example:
-   ```bash
-   go run ./cmd/example_api/main.go
-   ```
-
-This example:
-- Sends the container to `/api/v1/extract` to extract the key
-- Sends a message to `/api/v1/sign` for signing
-- Uses the signature for ESIA authorization
-
-## HTTP API Server
+## HTTP API Server Installation
 
 For some scenarios it is easier to deploy an HTTP API server that allows extracting keys and signing messages via REST API.
 
-### Running
+### Go
 
-- Using the installed CLI:
-  ```bash
-  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
-  cryptopro_extract_service -host 0.0.0.0 -port 8080
-  ```
+```bash
+go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
+cryptopro_extract_service -host 0.0.0.0 -port 8080
+```
 
-- From source code:
-  ```bash
-  go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
-  ```
+### Build from Source
 
-- Docker:
-  ```bash
-  docker pull dimahkiin/cryptopro-extract-service:latest
-  docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
-  ```
+```bash
+go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+```
+
+### Docker
+
+```bash
+docker pull dimahkiin/cryptopro-extract-service:latest
+docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
+```
 
 ### API Documentation
 
@@ -279,3 +266,19 @@ curl -X POST http://localhost:8080/api/v1/sign \
     \"message\": \"openid2025.01.01 12:00:00 +0000CLIENT_ID12345\"
   }"
 ```
+
+## ESIA Client Example (via HTTP API)
+
+If you cannot use this project as a library, you can use its HTTP API version.
+
+1. Start the HTTP API server (see above)
+
+2. And then:
+   ```bash
+   go run ./cmd/example_api/main.go
+   ```
+
+This example:
+- Sends the container to `/api/v1/extract` to extract the key
+- Sends a message to `/api/v1/sign` for signing
+- Uses the signature for ESIA authorization

@@ -11,12 +11,17 @@
 - [Что умеет](#что-умеет)
 - [Вводные](#вводные)
 - [Структура проекта](#структура-проекта)
-- [Установка](#установка)
+- [Установка CLI](#установка-cli)
   - [Go](#go)
+  - [Сборка из исходного кода на Go](#сборка-из-исходного-кода-на-go)
   - [Docker](#docker)
 - [Извлечение приватного ключа из контейнера КриптоПро](#извлечение-приватного-ключа-из-контейнера-криптопро)
 - [Пример клиента ЕСИА](#пример-клиента-есиа)
-- [HTTP API сервер](#http-api-сервер)
+- [Установка HTTP API сервера](#установка-http-api-сервера)
+  - [Go](#go-1)
+  - [Сборка из исходного кода на Go](#сборка-из-исходного-кода-на-go-1)
+  - [Docker](#docker-1)
+- [Пример клиента ЕСИА (через HTTP API)](#пример-клиента-есиа-через-http-api)
 
 ## Что умеет
 
@@ -56,22 +61,22 @@ esia-potato/
 `--- test_container/              # Тестовые ключи. В gitignore, так как ваши будут отличаться
 ```
 
-## Установка
+## Установка CLI
 
 ### Go
 
-- Если нужен просто CLI:
-  ```bash
-  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
-  cryptopro_extract -h
-  ```
+```bash
+go install github.com/LdDl/esia-potato/cmd/cryptopro_extract@latest
+cryptopro_extract -h
+```
 
-- Если хочешь собрать из исходников:
-  ```bash
-  git clone git@github.com:LdDl/esia-potato.git --depth 1
-  cd esia-potato
-  go run ./cmd/cryptopro_extract -h
-  ```
+### Сборка из исходного кода на Go
+
+```bash
+git clone git@github.com:LdDl/esia-potato.git --depth 1
+cd esia-potato
+go run ./cmd/cryptopro_extract -h
+```
 
 ### Docker
 
@@ -131,47 +136,29 @@ secondary key found but not extracted
 
 Редирект на /login означает, что подпись прошла проверку и всё ок.
 
-## Пример клиента ЕСИА (через HTTP API)
-
-Если нет возможности использовать этот проект как библиотеку, то можно воспользоватья HTTP API версией.
-
-1. Запустите HTTP API сервер:
-   ```bash
-   go run ./cmd/cryptopro_extract_service/main.go
-   ```
-
-2. В другом терминале запустите пример:
-   ```bash
-   go run ./cmd/example_api/main.go
-   ```
-
-Этот пример:
-- Отправляет контейнер на `/api/v1/extract` для извлечения ключа
-- Отправляет сообщение на `/api/v1/sign` для подписи
-- Использует полученную подпись для авторизации в ЕСИА
-
-## HTTP API сервер
+## Установка HTTP API сервера
 
 Для удобства интеграции в ряде случаев есть HTTP API сервер, который позволяет извлекать ключи и подписывать сообщения через REST API.
 
-### Запуск
+### Go
 
-- С помощью установленного CLI:
-  ```bash
-  go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
-  cryptopro_extract_service -host 0.0.0.0 -port 8080
-  ```
+```bash
+go install github.com/LdDl/esia-potato/cmd/cryptopro_extract_service@latest
+cryptopro_extract_service -host 0.0.0.0 -port 8080
+```
 
-- Из исходников:
-  ```bash
-  go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
-  ```
+### Сборка из исходного кода на Go
 
-- Docker:
-  ```bash
-  docker pull dimahkiin/cryptopro-extract-service:latest
-  docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
-  ```
+```bash
+go run ./cmd/cryptopro_extract_service/main.go -host 0.0.0.0 -port 8080
+```
+
+### Docker
+
+```bash
+docker pull dimahkiin/cryptopro-extract-service:latest
+docker run -p 8080:8080 dimahkiin/cryptopro-extract-service
+```
 
 ### API документация
 
@@ -279,3 +266,20 @@ curl -X POST http://localhost:8080/api/v1/sign \
     \"message\": \"openid2025.01.01 12:00:00 +0000CLIENT_ID12345\"
   }"
 ```
+
+## Пример клиента ЕСИА (через HTTP API)
+
+Если нет возможности использовать этот проект как библиотеку, то можно воспользоваться его HTTP API версией.
+
+1. Запустите HTTP API сервер (см. выше)
+
+2. Затем:
+   ```bash
+   go run ./cmd/example_api/main.go
+   ```
+
+Этот пример:
+- Отправляет контейнер на `/api/v1/extract` для извлечения ключа
+- Отправляет сообщение на `/api/v1/sign` для подписи
+- Использует полученную подпись для авторизации в ЕСИА и формирует URL для редиректа
+
