@@ -43,13 +43,13 @@ docker build -f Dockerfile.service -t cryptopro-extract-service:latest .
 
 # push to docker registry
 # VERSION=0.0.1
-# docker tag cryptopro-extract:latest dimhakiin/cryptopro-extract:${VERSION}
-# docker tag cryptopro-extract:latest dimhakiin/cryptopro-extract:latest
-# docker tag cryptopro-extract-service:latest dimhakiin/cryptopro-extract-service:${VERSION}
-# docker tag cryptopro-extract-service:latest dimhakiin/cryptopro-extract-service:latest
-# docker push dimhakiin/cryptopro-extract:${VERSION}
-# docker push dimhakiin/cryptopro-extract:latest
-# docker push dimhakiin/cryptopro-extract-service:${VERSION}
-# docker push dimhakiin/cryptopro-extract-service:latest
+# docker tag cryptopro-extract:latest dimahkiin/cryptopro-extract:${VERSION}
+# docker tag cryptopro-extract:latest dimahkiin/cryptopro-extract:latest
+# docker tag cryptopro-extract-service:latest dimahkiin/cryptopro-extract-service:${VERSION}
+# docker tag cryptopro-extract-service:latest dimahkiin/cryptopro-extract-service:latest
+# docker push dimahkiin/cryptopro-extract:${VERSION}
+# docker push dimahkiin/cryptopro-extract:latest
+# docker push dimahkiin/cryptopro-extract-service:${VERSION}
+# docker push dimahkiin/cryptopro-extract-service:latest
 
 echo "Done!"
