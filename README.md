@@ -292,16 +292,16 @@ curl -X POST http://localhost:8080/api/v1/sign \
 
 1. Получаем приватный ключ (см. [Извлечение приватного ключа](#извлечение-приватного-ключа-из-контейнера-криптопро))
 
-2. Копиреум полученный hex в `cmd/example_snils/main.go` в `keyHex`. Надо не забыть сверить `clientID` и `redirectURI`.
+2. Копируем полученный hex в `cmd/example_snils/main.go` в `keyHex`. Надо не забыть сверить `clientID` и `redirectURI`.
 
-3. Запустите:
+3. Запускаем:
    ```bash
    go run ./cmd/example_snils/main.go
    ```
 
 4. Дальше надо открыть в браузере URL из вывода программы (прямо перед сообщением `waiting for callback`) и подтверждаем в браузере авторизацию в ЕСИА (после одного раза некоторое время подверждение будет автоматическое).
 
-В итоге мы имеем:
+В итоге мы имеем в примере:
 - Формирование подписи и authorization URL
 - Локальный HTTP-сервер для получения callback с authorization code
 - Обмен code на access token (`/aas/oauth2/te`)
