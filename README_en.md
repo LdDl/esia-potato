@@ -22,6 +22,7 @@ No Docker builds with patched OpenSSL or external OpenSSL dependencies required.
   - [Build from Source](#build-from-source-1)
   - [Docker](#docker-1)
 - [ESIA Client Example (via HTTP API)](#esia-client-example-via-http-api)
+- [SNILS Retrieval Example (full OAuth flow)](#snils-retrieval-example-full-oauth-flow)
 
 ## Features
 
@@ -56,8 +57,10 @@ esia-potato/
 |    |    --- main.go             # CLI for key extraction
 |    |--- example/
 |    |    --- main.go             # ESIA client example (library)
-|    `--- example_api/
-|         --- main.go             # ESIA client example (HTTP API)
+|    |--- example_api/
+|    |    --- main.go             # ESIA client example (HTTP API)
+|    `--- example_snils/
+|         --- main.go             # SNILS retrieval example (full OAuth flow)
 `--- test_container/              # Test keys (in .gitignore)
 ```
 
@@ -282,3 +285,25 @@ This example:
 - Sends the container to `/api/v1/extract` to extract the key
 - Sends a message to `/api/v1/sign` for signing
 - Uses the signature for ESIA authorization
+
+## SNILS Retrieval Example (full OAuth flow)
+
+A complete OAuth authorization example that retrieves user data (SNILS) from the ESIA REST API.
+
+1. Extract the private key (see [Extracting Private Key](#extracting-private-key-from-cryptopro-container))
+
+2. Copy the obtained hex into `cmd/example_snils/main.go` in `keyHex`. Don't forget to check `clientID` and `redirectURI`.
+
+3. Run:
+   ```bash
+   go run ./cmd/example_snils/main.go
+   ```
+
+4. Open the URL from the program output in your browser (right before the `waiting for callback` message) and confirm ESIA authorization (after the first time, confirmation will be automatic for a while).
+
+This example covers:
+- Signature generation and authorization URL
+- Local HTTP server to receive the callback with the authorization code
+- Exchanging the code for an access token (`/aas/oauth2/te`)
+- Extracting the subject OID from the JWT
+- Fetching SNILS via the ESIA REST API (`/rs/prns/{oid}`) as an example of querying account data
